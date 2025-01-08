@@ -12,6 +12,13 @@ export class UrlCreateDto {
 		message: 'URL is required'
 	})
 	originalUrl: string
+
+	@ApiProperty({
+		description: 'The date the URL will expire',
+		example: '2021-12-31T23:59:59Z',
+		required: false
+	})
+	expiresAt?: Date
 }
 
 export class UrlUpdateDto extends UrlCreateDto {

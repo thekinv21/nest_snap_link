@@ -38,7 +38,7 @@ export class UrlController {
 	@Get(':shortUrl')
 	public async redirectToURLByShortURL(
 		@Param('shortUrl') shortUrl: string
-	): Promise<UrlDto> {
+	): Promise<String> {
 		return this.urlService.redirectToURLByShortURL(shortUrl)
 	}
 
