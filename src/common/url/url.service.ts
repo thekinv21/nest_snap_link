@@ -32,12 +32,8 @@ export class UrlService {
 	}
 
 	public async getInfoByShortURL(shortUrl: string): Promise<UrlDto> {
-		try {
-			const url = await this.findURLByShortURL(shortUrl)
-			return plainToInstance(UrlDto, url)
-		} catch (error) {
-			throw new BadRequestException('Invalid short URL', error)
-		}
+		const url = await this.findURLByShortURL(shortUrl)
+		return plainToInstance(UrlDto, url)
 	}
 
 	public async create(dto: UrlCreateDto): Promise<String> {
@@ -46,7 +42,7 @@ export class UrlService {
 		const url = await this.prismaService.url.create({
 			data: {
 				originalUrl: dto.originalUrl,
-				shortUrl: randomBytes(6).toString('hex'),
+				shortUrl: randomBytes(6).toString('hex').slice(0, 6),
 				expiresAt: dto.expiresAt
 			}
 		})
