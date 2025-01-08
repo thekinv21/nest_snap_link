@@ -28,13 +28,13 @@ import { UrlService } from './url.service'
 export class UrlController {
 	constructor(private readonly urlService: UrlService) {}
 
-	@ApiOperation({ summary: 'Get all short urls' })
+	@ApiOperation({ summary: 'Get all URLS' })
 	@Get()
 	public async getShortURLS(): Promise<UrlDto[]> {
 		return this.urlService.getAll()
 	}
 
-	@ApiOperation({ summary: 'Get short url by ID' })
+	@ApiOperation({ summary: 'Redirect to URL with shortURL' })
 	@Get(':shortUrl')
 	public async redirectToURLByShortURL(
 		@Param('shortUrl') shortUrl: string
@@ -42,7 +42,7 @@ export class UrlController {
 		return this.urlService.redirectToURLByShortURL(shortUrl)
 	}
 
-	@ApiOperation({ summary: 'Get short url by ID' })
+	@ApiOperation({ summary: 'Get info about URL with shortURL' })
 	@Get('/info/:shortUrl')
 	public async getInfo(@Param('shortUrl') shortUrl: string): Promise<UrlDto> {
 		return this.urlService.getInfoByShortURL(shortUrl)
@@ -66,7 +66,7 @@ export class UrlController {
 		return this.urlService.update(dto)
 	}
 
-	@ApiOperation({ summary: 'Delete short url by ID' })
+	@ApiOperation({ summary: 'Delete URL by shortURL' })
 	@Delete('/delete/:shortUrl')
 	public async deleteShortURL(
 		@Param('shortUrl') shortUrl: string
@@ -74,7 +74,7 @@ export class UrlController {
 		return this.urlService.delete(shortUrl)
 	}
 
-	@ApiOperation({ summary: 'Toggle short url status' })
+	@ApiOperation({ summary: 'Toggle URL status with shortURL' })
 	@Patch('/toggle-status/:shortUrl')
 	public async toggleShortURL(
 		@Param('shortUrl') shortUrl: string
