@@ -39,8 +39,11 @@ export class AuthService {
 
 	async login(dto: LoginDto): Promise<AuthResponse> {
 		const user = await this.validateUser(dto)
-
-		return null
+		const response: AuthResponse = {
+			user: user,
+			token: await this.jwtService.generateTokens(user?.id)
+		}
+		return response
 	}
 
 	async refreshToken(dto: RefreshTokenDto): Promise<TokenResponse> {

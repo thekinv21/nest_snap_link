@@ -6,14 +6,21 @@ import {
 	Param,
 	Patch,
 	Post,
-	Put
+	Put,
+	UseGuards,
+	UsePipes,
+	ValidationPipe
 } from '@nestjs/common'
-import { ApiOperation } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { JwtAuthGuard } from '../auth/guards/jwt.guard'
 import { UserCreateDto, UserUpdateDto } from './dto/user.request'
 import { UserDto } from './dto/user.response'
 import { UserService } from './user.service'
 
 @Controller('user')
+@ApiTags('User')
+@ApiBearerAuth('access-token')
+@UseGuards(JwtAuthGuard)
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
@@ -30,12 +37,14 @@ export class UserController {
 	}
 
 	@ApiOperation({ summary: 'Create a new user' })
+	@UsePipes(new ValidationPipe())
 	@Post()
 	public async create(@Body() dto: UserCreateDto): Promise<UserDto> {
 		return this.userService.create(dto)
 	}
 
 	@ApiOperation({ summary: 'Update an existing user' })
+	@UsePipes(new ValidationPipe())
 	@Put()
 	public async update(@Body() dto: UserUpdateDto): Promise<UserDto> {
 		return this.userService.update(dto)
