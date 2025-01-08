@@ -13,7 +13,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../auth/guards/jwt.guard'
 import { UrlCreateDto } from './dto/url.request'
-import { UrlCreateResponseDto, UrlDto } from './dto/url.response'
+import { UrlDto } from './dto/url.response'
 import { UrlService } from './url.service'
 
 @Controller('url')
@@ -46,9 +46,7 @@ export class UrlController {
 	@ApiOperation({ summary: 'Create a new short url' })
 	@UsePipes(new ValidationPipe())
 	@Post('/shorten')
-	public async createShortURL(
-		@Body() dto: UrlCreateDto
-	): Promise<UrlCreateResponseDto> {
+	public async createShortURL(@Body() dto: UrlCreateDto): Promise<String> {
 		return this.urlService.create(dto)
 	}
 

@@ -6,9 +6,9 @@ import {
 	NotFoundException
 } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
-import { randomUUID } from 'crypto'
+import { randomBytes } from 'crypto'
 import { UrlCreateDto } from './dto/url.request'
-import { UrlCreateResponseDto, UrlDto } from './dto/url.response'
+import { UrlDto } from './dto/url.response'
 
 @Injectable()
 export class UrlService {
@@ -44,17 +44,17 @@ export class UrlService {
 		}
 	}
 
-	public async create(dto: UrlCreateDto): Promise<UrlCreateResponseDto> {
+	public async create(dto: UrlCreateDto): Promise<String> {
 		await this.isUniqueURL(dto.originalUrl)
 
 		const url = await this.prismaService.url.create({
 			data: {
 				originalUrl: dto.originalUrl,
-				shortUrl: randomUUID(),
+				shortUrl: randomBytes(6).toString('hex'),
 				expiresAt: dto.expiresAt
 			}
 		})
-		return plainToInstance(UrlCreateResponseDto, url)
+		return url.shortUrl
 	}
 
 	public async delete(shortUrl: string): Promise<void> {
