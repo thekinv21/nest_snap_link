@@ -66,7 +66,7 @@ export class RegisterDto {
 
 	@ApiProperty({
 		description: 'Password',
-		example: '*********',
+		example: 'pass',
 		required: true
 	})
 	@IsString()
