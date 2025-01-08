@@ -27,12 +27,8 @@ export class UrlService {
 	}
 
 	public async redirectToURLByShortURL(shortUrl: string): Promise<String> {
-		try {
-			const url = await this.findURLByShortURL(shortUrl)
-			return url.originalUrl
-		} catch (error) {
-			throw new BadRequestException('Invalid short URL', error)
-		}
+		const url = await this.findURLByShortURL(shortUrl)
+		return url.originalUrl
 	}
 
 	public async getInfoByShortURL(shortUrl: string): Promise<UrlDto> {
