@@ -27,6 +27,8 @@ export class AuthService {
 	}
 
 	async register(dto: RegisterDto): Promise<UserDto | null> {
+		await this.userService.isUnique(dto.username, dto.email)
+
 		const newUser = await this.prismaService.user.create({
 			data: {
 				...dto,

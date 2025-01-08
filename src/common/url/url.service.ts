@@ -49,22 +49,15 @@ export class UrlService {
 	}
 
 	public async create(dto: UrlCreateDto): Promise<UrlCreateResponseDto> {
-		try {
-			await this.isUniqueURL(dto.originalUrl)
+		await this.isUniqueURL(dto.originalUrl)
 
-			const url = await this.prismaService.url.create({
-				data: {
-					originalUrl: dto.originalUrl,
-					shortUrl: randomUUID()
-				}
-			})
-			return plainToInstance(UrlCreateResponseDto, url)
-		} catch (error) {
-			throw new BadRequestException(
-				'Something went wrong on creating short URL',
-				error
-			)
-		}
+		const url = await this.prismaService.url.create({
+			data: {
+				originalUrl: dto.originalUrl,
+				shortUrl: randomUUID()
+			}
+		})
+		return plainToInstance(UrlCreateResponseDto, url)
 	}
 
 	public async update(dto: UrlUpdateDto): Promise<UrlUpdateResponseDto> {
@@ -128,14 +121,14 @@ export class UrlService {
 	}
 
 	async isUniqueURL(url: string): Promise<void> {
-		const urlExists = await this.prismaService.url.findFirst({
+		const urlExists = await this.prismaService.url.findUnique({
 			where: {
 				originalUrl: url
 			}
 		})
 
 		if (urlExists) {
-			throw new ConflictException('URL already	exists')
+			throw new ConflictException('URL already exists')
 		}
 	}
 

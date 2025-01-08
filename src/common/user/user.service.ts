@@ -24,6 +24,8 @@ export class UserService {
 	}
 
 	public async create(dto: UserCreateDto): Promise<UserDto> {
+		await this.isUnique(dto.username, dto.email)
+
 		const newUser = await this.prismaService.user.create({
 			data: {
 				...dto,
