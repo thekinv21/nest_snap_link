@@ -6,19 +6,14 @@ import {
 	Param,
 	Patch,
 	Post,
-	Put,
 	UseGuards,
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../auth/guards/jwt.guard'
-import { UrlCreateDto, UrlUpdateDto } from './dto/url.request'
-import {
-	UrlCreateResponseDto,
-	UrlDto,
-	UrlUpdateResponseDto
-} from './dto/url.response'
+import { UrlCreateDto } from './dto/url.request'
+import { UrlCreateResponseDto, UrlDto } from './dto/url.response'
 import { UrlService } from './url.service'
 
 @Controller('url')
@@ -55,15 +50,6 @@ export class UrlController {
 		@Body() dto: UrlCreateDto
 	): Promise<UrlCreateResponseDto> {
 		return this.urlService.create(dto)
-	}
-
-	@ApiOperation({ summary: 'Update an existing short url' })
-	@UsePipes(new ValidationPipe())
-	@Put('/shorten')
-	public async updateShortURL(
-		@Body() dto: UrlUpdateDto
-	): Promise<UrlUpdateResponseDto> {
-		return this.urlService.update(dto)
 	}
 
 	@ApiOperation({ summary: 'Delete URL by shortURL' })

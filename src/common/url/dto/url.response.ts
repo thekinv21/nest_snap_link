@@ -1,3 +1,5 @@
+import { Expose } from 'class-transformer'
+
 export class UrlDto {
 	id: number
 	originalUrl: string
@@ -9,8 +11,9 @@ export class UrlDto {
 }
 
 export class UrlCreateResponseDto {
+	@Expose()
 	shortUrl: string
+
+	@Expose()
 	expiresAt: Date
 }
-
-export class UrlUpdateResponseDto extends UrlCreateResponseDto {}

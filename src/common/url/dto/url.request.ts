@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsString } from 'class-validator'
+import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class UrlCreateDto {
 	@ApiProperty({
@@ -18,17 +18,7 @@ export class UrlCreateDto {
 		example: '2021-12-31T23:59:59Z',
 		required: false
 	})
+	@IsOptional()
+	@IsDateString()
 	expiresAt?: Date
-}
-
-export class UrlUpdateDto extends UrlCreateDto {
-	@ApiProperty({
-		description: 'The ID of the url',
-		example: '1'
-	})
-	@IsString()
-	@IsNotEmpty({
-		message: 'ID is required'
-	})
-	id: number
 }

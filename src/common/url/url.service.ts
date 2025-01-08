@@ -7,12 +7,8 @@ import {
 } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { randomUUID } from 'crypto'
-import { UrlCreateDto, UrlUpdateDto } from './dto/url.request'
-import {
-	UrlCreateResponseDto,
-	UrlDto,
-	UrlUpdateResponseDto
-} from './dto/url.response'
+import { UrlCreateDto } from './dto/url.request'
+import { UrlCreateResponseDto, UrlDto } from './dto/url.response'
 
 @Injectable()
 export class UrlService {
@@ -54,70 +50,32 @@ export class UrlService {
 		const url = await this.prismaService.url.create({
 			data: {
 				originalUrl: dto.originalUrl,
-				shortUrl: randomUUID()
+				shortUrl: randomUUID(),
+				expiresAt: dto.expiresAt
 			}
 		})
 		return plainToInstance(UrlCreateResponseDto, url)
 	}
 
-	public async update(dto: UrlUpdateDto): Promise<UrlUpdateResponseDto> {
-		try {
-			const existingURL = await this.prismaService.url.findUnique({
-				where: {
-					id: dto.id
-				}
-			})
-			if (!existingURL) {
-				throw new NotFoundException('URL not found!')
-			}
-			const url = await this.prismaService.url.update({
-				where: {
-					id: dto.id
-				},
-				data: {
-					originalUrl: dto.originalUrl
-				}
-			})
-			return plainToInstance(UrlUpdateResponseDto, url)
-		} catch (error) {
-			throw new BadRequestException(
-				'Something went wrong on updating short URL',
-				error
-			)
-		}
-	}
-
 	public async delete(shortUrl: string): Promise<void> {
-		try {
-			const url = await this.findURLByShortURL(shortUrl)
-			await this.prismaService.url.delete({
-				where: {
-					shortUrl: url.shortUrl
-				}
-			})
-		} catch (error) {
-			throw new BadRequestException(
-				'Something went wrong on deleting short URL',
-				error
-			)
-		}
+		const url = await this.findURLByShortURL(shortUrl)
+		await this.prismaService.url.delete({
+			where: {
+				shortUrl: url.shortUrl
+			}
+		})
 	}
 
 	public async toggle(shortUrl: string): Promise<void> {
-		try {
-			const url = await this.findURLByShortURL(shortUrl)
-
-			await this.prismaService.url.update({
-				where: {
-					shortUrl
-				},
-				data: {
-					isActive: !url.isActive
-				}
-			})
-		} catch (error) {
-			throw new BadRequestException('Invalid short URL', error)
-		}
+		const url = await this.findURLByShortURL(shortUrl)
+		await this.prismaService.url.update({
+			where: {
+				shortUrl
+			},
+			data: {
+				isActive: !url.isActive
+			}
+		})
 	}
 
 	async isUniqueURL(url: string): Promise<void> {
