@@ -13,5 +13,6 @@ export class UrlDto {
 export class UrlInfoDto extends PickType(UrlDto, [
 	'originalUrl',
 	'createdAt',
-	'clickCount'
+	'clickCount',
+	'expiresAt'
 ]) {}
