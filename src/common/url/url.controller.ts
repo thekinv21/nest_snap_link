@@ -7,20 +7,16 @@ import {
 	Param,
 	Patch,
 	Post,
-	UseGuards,
 	UsePipes,
 	ValidationPipe
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { JwtAuthGuard } from '../auth/guards/jwt.guard'
+import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UrlCreateDto } from './dto/url.request'
 import { UrlAnalyticsDto, UrlDto, UrlInfoDto } from './dto/url.response'
 import { UrlService } from './url.service'
 
 @Controller('url')
 @ApiTags('Url')
-@ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard)
 export class UrlController {
 	constructor(private readonly urlService: UrlService) {}
 
