@@ -184,8 +184,8 @@ export class UrlService {
 				where: { alias }
 			})
 
-			if (originalUrl || aliasUrl) {
-				throw new ConflictException('URL or alias already exists')
+			if (aliasUrl) {
+				throw new ConflictException('Alias already exists')
 			}
 		}
 
