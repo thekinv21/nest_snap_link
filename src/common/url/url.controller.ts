@@ -3,6 +3,7 @@ import {
 	Controller,
 	Delete,
 	Get,
+	Ip,
 	Param,
 	Patch,
 	Post,
@@ -13,7 +14,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../auth/guards/jwt.guard'
 import { UrlCreateDto } from './dto/url.request'
-import { UrlDto } from './dto/url.response'
+import { UrlAnalyticsDto, UrlDto, UrlInfoDto } from './dto/url.response'
 import { UrlService } from './url.service'
 
 @Controller('url')
@@ -32,15 +33,26 @@ export class UrlController {
 	@ApiOperation({ summary: 'Redirect to URL with shortURL' })
 	@Get(':shortUrl')
 	public async redirectToURLByShortURL(
-		@Param('shortUrl') shortUrl: string
+		@Param('shortUrl') shortUrl: string,
+		@Ip() ip: string
 	): Promise<String> {
-		return this.urlService.redirectToURLByShortURL(shortUrl)
+		return this.urlService.redirectToURLByShortURL(shortUrl, ip)
 	}
 
 	@ApiOperation({ summary: 'Get info about URL with shortURL' })
 	@Get('/info/:shortUrl')
-	public async getInfo(@Param('shortUrl') shortUrl: string): Promise<UrlDto> {
+	public async getInfo(
+		@Param('shortUrl') shortUrl: string
+	): Promise<UrlInfoDto> {
 		return this.urlService.getInfoByShortURL(shortUrl)
+	}
+
+	@ApiOperation({ summary: 'Get URL Analytics' })
+	@Get('/analytics/:shortUrl')
+	public async getAnalytics(
+		@Param('shortUrl') shortUrl: string
+	): Promise<UrlAnalyticsDto> {
+		return this.urlService.getURLAnalytics(shortUrl)
 	}
 
 	@ApiOperation({ summary: 'Create a new short url' })
