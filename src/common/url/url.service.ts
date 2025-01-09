@@ -9,7 +9,7 @@ import {
 import { plainToInstance } from 'class-transformer'
 import { randomBytes } from 'crypto'
 import { UrlCreateDto } from './dto/url.request'
-import { UrlDto, UrlInfoDto } from './dto/url.response'
+import { UrlAnalyticsDto, UrlDto, UrlInfoDto } from './dto/url.response'
 
 @Injectable()
 export class UrlService {
@@ -31,9 +31,46 @@ export class UrlService {
 		}
 	}
 
-	public async redirectToURLByShortURL(shortUrl: string): Promise<String> {
-		const url = await this.findIsActiveURLByShortURL(shortUrl)
-		return url.originalUrl
+	public async redirectToURLByShortURL(
+		shortUrl: string,
+		ip: string
+	): Promise<string> {
+		const { originalUrl, expiresAt, id } =
+			await this.prismaService.url.findUnique({
+				where: {
+					shortUrl
+				},
+				select: {
+					originalUrl: true,
+					expiresAt: true,
+					id: true
+				}
+			})
+
+		if (!originalUrl) {
+			throw new NotFoundException('URL not found!')
+		}
+
+		if (expiresAt && new Date(this.formatDate(expiresAt)) <= new Date()) {
+			throw new GoneException('URL expired!')
+		}
+
+		await this.prismaService.analytics.create({
+			data: {
+				urlId: id,
+				ipAddress: ip
+			}
+		})
+
+		await this.prismaService.url.update({
+			where: { id },
+			data: {
+				clickCount: {
+					increment: 1
+				}
+			}
+		})
+		return originalUrl
 	}
 
 	public async getInfoByShortURL(shortUrl: string): Promise<UrlInfoDto> {
@@ -57,6 +94,33 @@ export class UrlService {
 			new Date(this.formatDate(url.expiresAt)) <= new Date()
 		) {
 			throw new GoneException('URL expired!')
+		}
+
+		return url
+	}
+
+	public async getURLAnalytics(shortUrl: string): Promise<UrlAnalyticsDto> {
+		const url = await this.prismaService.url.findUnique({
+			where: {
+				shortUrl
+			},
+			select: {
+				shortUrl: true,
+				clickCount: true,
+				analytics: {
+					select: {
+						ipAddress: true,
+						createdAt: true
+					},
+					take: 5,
+					orderBy: {
+						createdAt: 'desc'
+					}
+				}
+			}
+		})
+		if (!url) {
+			throw new NotFoundException('URL not found!')
 		}
 
 		return url
