@@ -8,7 +8,7 @@ import {
 import { plainToInstance } from 'class-transformer'
 import { randomBytes } from 'crypto'
 import { UrlCreateDto } from './dto/url.request'
-import { UrlDto } from './dto/url.response'
+import { UrlDto, UrlInfoDto } from './dto/url.response'
 
 @Injectable()
 export class UrlService {
@@ -35,9 +35,9 @@ export class UrlService {
 		return url.originalUrl
 	}
 
-	public async getInfoByShortURL(shortUrl: string): Promise<UrlDto> {
+	public async getInfoByShortURL(shortUrl: string): Promise<UrlInfoDto> {
 		const url = await this.findURLByShortURL(shortUrl)
-		return url
+		return plainToInstance(UrlInfoDto, url)
 	}
 
 	public async create(dto: UrlCreateDto): Promise<String> {

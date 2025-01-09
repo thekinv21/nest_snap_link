@@ -1,3 +1,5 @@
+import { PickType } from '@nestjs/mapped-types'
+
 export class UrlDto {
 	id: number
 	originalUrl: string
@@ -5,5 +7,11 @@ export class UrlDto {
 	expiresAt: Date
 	isActive: boolean
 	createdAt: Date
-	updatedAt: Date
+	clickCount: number
 }
+
+export class UrlInfoDto extends PickType(UrlDto, [
+	'originalUrl',
+	'createdAt',
+	'clickCount'
+]) {}
