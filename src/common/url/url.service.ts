@@ -105,6 +105,7 @@ export class UrlService {
 				shortUrl
 			},
 			select: {
+				expiresAt: true,
 				shortUrl: true,
 				clickCount: true,
 				analytics: {
@@ -121,6 +122,13 @@ export class UrlService {
 		})
 		if (!url) {
 			throw new NotFoundException('URL not found!')
+		}
+
+		if (
+			url.expiresAt &&
+			new Date(this.formatDate(url.expiresAt)) <= new Date()
+		) {
+			throw new GoneException('URL expired!')
 		}
 
 		return url
