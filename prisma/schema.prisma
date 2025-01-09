@@ -23,6 +23,7 @@ model Url {
   id          Int         @id @default(autoincrement())
   originalUrl String      @unique
   shortUrl    String      @unique
+  alias       String?     @unique
   isActive    Boolean     @default(true)
   expiresAt   DateTime?
   createdAt   DateTime    @default(now())

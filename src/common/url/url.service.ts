@@ -89,12 +89,7 @@ export class UrlService {
 			throw new NotFoundException('URL not found!')
 		}
 
-		if (
-			url.expiresAt &&
-			new Date(this.formatDate(url.expiresAt)) <= new Date()
-		) {
-			throw new GoneException('URL expired!')
-		}
+		this.checkIfUrlExpired(url.expiresAt)
 
 		return url
 	}
@@ -123,18 +118,15 @@ export class UrlService {
 		if (!url) {
 			throw new NotFoundException('URL not found!')
 		}
-
-		if (
-			url.expiresAt &&
-			new Date(this.formatDate(url.expiresAt)) <= new Date()
-		) {
-			throw new GoneException('URL expired!')
-		}
+		this.checkIfUrlExpired(url.expiresAt)
 
 		return url
 	}
 
 	public async create(dto: UrlCreateDto): Promise<String> {
+		if (dto.alias) {
+			await this.isUniqueURL(dto.originalUrl, dto.alias)
+		}
 		await this.isUniqueURL(dto.originalUrl)
 
 		if (dto.expiresAt && new Date(dto.expiresAt) <= new Date()) {
@@ -144,8 +136,9 @@ export class UrlService {
 		const url = await this.prismaService.url.create({
 			data: {
 				originalUrl: dto.originalUrl,
-				shortUrl: randomBytes(3).toString('hex'),
-				expiresAt: dto.expiresAt
+				shortUrl: dto.alias ? dto.alias : randomBytes(3).toString('hex'),
+				expiresAt: dto.expiresAt ?? null,
+				alias: dto.alias ?? null
 			}
 		})
 		return url.shortUrl
@@ -172,14 +165,22 @@ export class UrlService {
 		})
 	}
 
-	async isUniqueURL(url: string): Promise<void> {
-		const urlExists = await this.prismaService.url.findUnique({
-			where: {
-				originalUrl: url
-			}
+	async isUniqueURL(url: string, alias?: string): Promise<void> {
+		const originalUrl = await this.prismaService.url.findUnique({
+			where: { originalUrl: url }
 		})
 
-		if (urlExists) {
+		if (alias) {
+			const aliasUrl = await this.prismaService.url.findUnique({
+				where: { alias }
+			})
+
+			if (originalUrl || aliasUrl) {
+				throw new ConflictException('URL or alias already exists')
+			}
+		}
+
+		if (originalUrl) {
 			throw new ConflictException('URL already exists')
 		}
 	}
@@ -195,13 +196,7 @@ export class UrlService {
 		if (!url) {
 			throw new NotFoundException('URL not found!')
 		}
-		if (
-			url.expiresAt &&
-			new Date(this.formatDate(url.expiresAt)) <= new Date()
-		) {
-			throw new GoneException('URL expired!')
-		}
-
+		this.checkIfUrlExpired(url.expiresAt)
 		return plainToInstance(UrlDto, url)
 	}
 
@@ -215,17 +210,18 @@ export class UrlService {
 		if (!url) {
 			throw new NotFoundException('URL not found!')
 		}
-		if (
-			url.expiresAt &&
-			new Date(this.formatDate(url.expiresAt)) <= new Date()
-		) {
-			throw new GoneException('URL expired!')
-		}
+		this.checkIfUrlExpired(url.expiresAt)
 
 		return plainToInstance(UrlDto, url)
 	}
 
 	private formatDate(expiresAt: Date): string {
 		return new Date(expiresAt).toISOString().replace('T', ' ').split('.')[0]
+	}
+
+	private checkIfUrlExpired(expiresAt: Date) {
+		if (expiresAt && new Date(this.formatDate(expiresAt)) <= new Date()) {
+			throw new GoneException('URL expired!')
+		}
 	}
 }
