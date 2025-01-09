@@ -16,7 +16,11 @@ export class UrlService {
 
 	public async getAll(): Promise<UrlDto[]> {
 		try {
-			const urls = await this.prismaService.url.findMany()
+			const urls = await this.prismaService.url.findMany({
+				where: {
+					isActive: true
+				}
+			})
 			return plainToInstance(UrlDto, urls)
 		} catch (error) {
 			throw new BadRequestException(
@@ -32,7 +36,8 @@ export class UrlService {
 	}
 
 	public async getInfoByShortURL(shortUrl: string): Promise<UrlDto> {
-		return await this.findURLByShortURL(shortUrl)
+		const url = await this.findURLByShortURL(shortUrl)
+		return url
 	}
 
 	public async create(dto: UrlCreateDto): Promise<String> {
@@ -41,7 +46,7 @@ export class UrlService {
 		const url = await this.prismaService.url.create({
 			data: {
 				originalUrl: dto.originalUrl,
-				shortUrl: randomBytes(6).toString('hex'),
+				shortUrl: randomBytes(3).toString('hex'),
 				expiresAt: dto.expiresAt
 			}
 		})
@@ -84,7 +89,8 @@ export class UrlService {
 	async findURLByShortURL(shortUrl: string): Promise<UrlDto> {
 		const url = await this.prismaService.url.findUnique({
 			where: {
-				shortUrl
+				shortUrl,
+				isActive: true
 			}
 		})
 
