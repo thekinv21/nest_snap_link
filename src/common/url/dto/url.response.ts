@@ -8,6 +8,7 @@ export class UrlDto {
 	isActive: boolean
 	createdAt: Date
 	clickCount: number
+	analytics: any
 }
 
 export class UrlInfoDto extends PickType(UrlDto, [
@@ -15,4 +16,9 @@ export class UrlInfoDto extends PickType(UrlDto, [
 	'createdAt',
 	'clickCount',
 	'expiresAt'
+]) {}
+
+export class UrlAnalyticsDto extends PickType(UrlDto, [
+	'clickCount',
+	'analytics'
 ]) {}
