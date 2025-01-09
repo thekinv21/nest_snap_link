@@ -2,6 +2,7 @@ import { PrismaService } from '@/root/prisma'
 import {
 	BadRequestException,
 	ConflictException,
+	GoneException,
 	Injectable,
 	NotFoundException
 } from '@nestjs/common'
@@ -50,16 +51,21 @@ export class UrlService {
 		if (!url) {
 			throw new NotFoundException('URL not found!')
 		}
+
+		if (
+			url.expiresAt &&
+			new Date(this.formatDate(url.expiresAt)) <= new Date()
+		) {
+			throw new GoneException('URL expired!')
+		}
+
 		return url
 	}
 
 	public async create(dto: UrlCreateDto): Promise<String> {
 		await this.isUniqueURL(dto.originalUrl)
 
-		if (
-			dto.expiresAt &&
-			new Date(dto.expiresAt).getTime() <= new Date().getTime()
-		) {
+		if (dto.expiresAt && new Date(dto.expiresAt) <= new Date()) {
 			throw new BadRequestException('Expiration date must be in the future')
 		}
 
@@ -117,6 +123,12 @@ export class UrlService {
 		if (!url) {
 			throw new NotFoundException('URL not found!')
 		}
+		if (
+			url.expiresAt &&
+			new Date(this.formatDate(url.expiresAt)) <= new Date()
+		) {
+			throw new GoneException('URL expired!')
+		}
 
 		return plainToInstance(UrlDto, url)
 	}
@@ -131,7 +143,17 @@ export class UrlService {
 		if (!url) {
 			throw new NotFoundException('URL not found!')
 		}
+		if (
+			url.expiresAt &&
+			new Date(this.formatDate(url.expiresAt)) <= new Date()
+		) {
+			throw new GoneException('URL expired!')
+		}
 
 		return plainToInstance(UrlDto, url)
+	}
+
+	private formatDate(expiresAt: Date): string {
+		return new Date(expiresAt).toISOString().replace('T', ' ').split('.')[0]
 	}
 }
