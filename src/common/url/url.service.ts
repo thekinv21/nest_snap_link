@@ -146,10 +146,19 @@ export class UrlService {
 
 	public async delete(shortUrl: string): Promise<void> {
 		const url = await this.findURLByShortURL(shortUrl)
-		await this.prismaService.url.delete({
-			where: {
-				shortUrl: url.shortUrl
-			}
+
+		await this.prismaService.$transaction(async deletingUrl => {
+			await deletingUrl.analytics.deleteMany({
+				where: {
+					urlId: url.id
+				}
+			})
+
+			await deletingUrl.url.delete({
+				where: {
+					shortUrl: url.shortUrl
+				}
+			})
 		})
 	}
 
